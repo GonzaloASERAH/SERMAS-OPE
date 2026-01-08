@@ -124,9 +124,79 @@ ESQUEMA RÁPIDO:
         fullTitle: "Tema 2. El Estatuto de Autonomía de la Comunidad de Madrid", 
         category: getCategory(2), 
         subtopics: [
-            { id: "2.1", title: "Estructura y contenido" },
-            { id: "2.2", title: "Las competencias de la Comunidad de Madrid (legislativa, reglamentaria, ejecutiva)" },
-            { id: "2.3", title: "La Asamblea de Madrid: composición, elección y funciones" }
+            {
+                id: "2.1", 
+                title: "Estructura y contenido", 
+                content: `RESUMEN EJECUTIVO: El Estatuto de Autonomía de la Comunidad de Madrid (EACM), aprobado por la Ley Orgánica 3/1983, de 25 de febrero, es la norma institucional básica de la región. Su función es organizar el autogobierno de Madrid en ejercicio del derecho a la autonomía que la Constitución reconoce, basándose en el interés nacional y sus características sociales, económicas e históricas. Se estructura en un Título Preliminar, cinco Títulos numerados (del I al V, aunque las fuentes omiten el detalle del IV), Disposiciones Adicionales, Transitorias y una Final.
+
+LITERALIDAD DE LA NORMA (CLAVE EXAMEN):
+• Definición: "Madrid... es una Comunidad Autónoma que organiza su autogobierno de conformidad con la Constitución Española y con el presente Estatuto, que es su norma institucional básica".
+• Instituciones de autogobierno: Los poderes de la Comunidad se ejercen a través de la Asamblea, el Gobierno y el Presidente de la Comunidad.
+• Prevalencia jurídica: El Derecho propio de la Comunidad de Madrid es aplicable con preferencia a cualquier otro en el territorio de Madrid.
+• Supletoriedad: El Derecho estatal tiene carácter supletorio del Derecho propio de Madrid.
+• Entrada en vigor: El mismo día de su publicación en el BOE.
+
+TRAMPAS HABITUALES:
+• Rango de la norma: El Estatuto es una Ley Orgánica, no una ley ordinaria.
+• Instituciones: No incluyas a la "Cámara de Cuentas" como institución de autogobierno principal según el Art. 8; las únicas tres citadas son Asamblea, Gobierno y Presidente.
+• Aplicación del Derecho: Cuidado con el orden. El Derecho propio es preferente, el estatal es supletorio.
+
+ESQUEMA RÁPIDO:
+• Título Preliminar: Definición y autogobierno.
+• Título I: Organización Institucional (Asamblea, Presidente, Gobierno).
+• Título II: Competencias.
+• Título III: Régimen Jurídico.
+• Título V: Economía y Hacienda.`
+            },
+            {
+                id: "2.2", 
+                title: "Las competencias de la Comunidad de Madrid", 
+                content: `RESUMEN EJECUTIVO: La Comunidad de Madrid ostenta competencias exclusivas en diversas materias (como la organización de sus instituciones o el sector público económico regional), sobre las cuales ejerce plenamente las potestades legislativa, reglamentaria y la función ejecutiva. Estas competencias deben ejercerse respetando siempre lo dispuesto en la Constitución Española.
+
+LITERALIDAD DE LA NORMA (CLAVE EXAMEN):
+• Art. 26: La Comunidad tiene competencia exclusiva en la "Organización, régimen y funcionamiento de sus instituciones de autogobierno" y en el "Procedimiento administrativo derivado de las especialidades de la organización propia".
+• Art. 34.3: Las competencias de ejecución llevan implícito la potestad reglamentaria para la organización interna de los servicios, la administración y la inspección.
+• Art. 36: En el ejercicio de sus competencias ejecutivas, la Comunidad goza de las potestades y privilegios propios de la Administración del Estado.
+
+TRAMPAS HABITUALES:
+• Potestad reglamentaria implícita: Se suele pensar que solo existe si hay una ley previa, pero el Art. 34.3 indica que es implícita para la organización interna, administración e inspección.
+• Control de leyes: Las leyes de la Asamblea están sujetas únicamente al control de constitucionalidad por el Tribunal Constitucional. Los reglamentos, sin embargo, los controla la jurisdicción contencioso-administrativa.
+
+ESQUEMA RÁPIDO DE POTESTADES:
+• 2.2.1 Potestad legislativa: Corresponde a la Asamblea en materias de competencia exclusiva (Art. 26) y en las que se le atribuyan o deleguen por el Estado (Art. 150 CE).
+• 2.2.2 Potestad reglamentaria: Corresponde al Consejo de Gobierno en materias no reservadas a la Asamblea.
+• 2.2.3 Función ejecutiva: Corresponde al Consejo de Gobierno e incluye:
+   o Presunción de legitimidad y ejecutoriedad de actos.
+   o Potestad de expropiación y sanción.
+   o Procedimiento de apremio e inembargabilidad de sus bienes y derechos.
+   o Exención de prestar garantías o cauciones ante jueces o tribunales.`
+            },
+            {
+                id: "2.3", 
+                title: "La Asamblea de Madrid: composición, elección y funciones", 
+                content: `RESUMEN EJECUTIVO: La Asamblea de Madrid es el órgano que representa al pueblo de la Comunidad y ejerce la potestad legislativa, presupuestaria y de control del Gobierno. Es una de las instituciones de autogobierno fundamentales según el artículo 8 del Estatuto.
+
+LITERALIDAD DE LA NORMA (CLAVE EXAMEN):
+• Presupuestos: Corresponde a la Asamblea "la aprobación y control de los Presupuestos de la Comunidad y el examen y aprobación de sus cuentas".
+• Plazo Presupuestario: El Gobierno debe presentar el proyecto de presupuesto a la Asamblea con una antelación mínima de dos meses a la fecha del inicio del ejercicio.
+• Tributos: La Asamblea tiene la potestad de "establecer y exigir tributos".
+• Elecciones: La celebración de elecciones atenderá a lo que dispongan las Cortes Generales para coordinar el calendario electoral.
+
+TRAMPAS HABITUALES:
+• Condición de Diputado: Para ser Vicepresidente o Consejero del Gobierno no es necesaria la condición de Diputado.
+• Operaciones de crédito: Es una función de la Asamblea (acordar operaciones de crédito y deuda pública), no una decisión unilateral del Gobierno.
+• Control: El Reglamento de la Asamblea permite ejercer el control ordinario del Gobierno y obtener información precisa de la Administración.
+
+ESQUEMA RÁPIDO:
+• Composición: Formada por Diputados (mencionados en el Art. 22.2). Nota: El número exacto no consta en las fuentes facilitadas.
+• Elección: Coordinada por las Cortes Generales (Disposición Adicional Segunda).
+• Funciones Principales:
+   o Legislativa (Materias Art. 26 y 27).
+   o Aprobación y control de Presupuestos y Planes Económicos.
+   o Ordenación básica de órganos y servicios de la Comunidad.
+   o Fijación de previsiones políticas, sociales y económicas para el Estado (Art. 131.2 CE).
+   o Aprobación de planes generales de fomento del desarrollo económico regional.`
+            }
         ] 
     },
     { 
