@@ -1,0 +1,5 @@
+{
+  "name": "OPE SERMAS Auxiliar - Estudio Pro",
+  "description": "Aplicación Web Progresiva (PWA) para el estudio de oposiciones de Auxiliar Administrativo del SERMAS. Incluye temario, audio-lectura, flashcards y seguimiento de progreso.",
+  "requestFramePermissions": []
+}
