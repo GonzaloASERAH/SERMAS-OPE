@@ -152,7 +152,7 @@ ESQUEMA RÁPIDO:
                         title: "Derechos y deberes fundamentales", 
                         content: `RESUMEN EJECUTIVO: El Título I (Arts. 10 a 55) es el núcleo de las libertades ciudadanas. Se divide en capítulos según el grado de protección jurídica de los derechos.
 
-LITERALIDAD DE LA NORMA (CLAVE EXAMEN):
+LITERALIDAD DE la NORMA (CLAVE EXAMEN):
 • Artículo 12: Los españoles son mayores de edad a los dieciocho años.
 • Artículo 14 (Igualdad): Los españoles son iguales ante la ley sin discriminación por nacimiento, raza, sexo, religión u opinión.
 • Artículo 17.2: La detención preventiva no podrá durar más del tiempo estrictamente necesario y, en todo caso, un máximo de setenta y dos horas.
@@ -657,7 +657,7 @@ ESQUEMA RÁPIDO:
                     const current = prev[topicId] || { status: StudyStatus.PENDING, lastStudied: null, timeSpentSeconds: 0, reviewCount: 0 };
                     return {
                         ...prev,
-                        [topicId]: { ...current, timeSpentSeconds: current.timeSpentSeconds + seconds, lastStudied: Date.now() }
+                        [topicId]: { ...current, timeSpentSeconds: (current.timeSpentSeconds || 0) + seconds, lastStudied: Date.now() }
                     };
                 });
             };
@@ -667,7 +667,7 @@ ESQUEMA RÁPIDO:
                     const current = prev[topicId] || { status: StudyStatus.PENDING, lastStudied: null, timeSpentSeconds: 0, reviewCount: 0 };
                     return {
                         ...prev,
-                        [topicId]: { ...current, reviewCount: current.reviewCount + 1, lastStudied: Date.now() }
+                        [topicId]: { ...current, reviewCount: (current.reviewCount || 0) + 1, lastStudied: Date.now() }
                     };
                 });
             };
@@ -692,7 +692,7 @@ ESQUEMA RÁPIDO:
             const filteredTopics = useMemo(() => {
                 return TOPICS.filter(t => {
                     const matchesSearch = t.fullTitle.toLowerCase().includes(search.toLowerCase()) || 
-                                          t.subtopics.some(s => s.title.toLowerCase().includes(search.toLowerCase()));
+                                          t.subtopics.some(s => (s.title || '').toLowerCase().includes(search.toLowerCase()));
                     const matchesFilter = filter === 'ALL' || t.category === filter;
                     return matchesSearch && matchesFilter;
                 });
@@ -760,35 +760,51 @@ ESQUEMA RÁPIDO:
             const [isPlaying, setIsPlaying] = useState(false);
             const [speed, setSpeed] = useState(1);
             const [activeSubtopic, setActiveSubtopic] = useState(null);
-            const synth = useRef(window.speechSynthesis);
-            const utterance = useRef(null);
+            const synth = window.speechSynthesis;
+            const utteranceRef = useRef(null);
 
             useEffect(() => {
                 if(!topic) return;
                 const timer = setInterval(() => addTime(topic.id, 5), 5000);
-                return () => clearInterval(timer);
+                return () => {
+                    clearInterval(timer);
+                    synth.cancel();
+                };
             }, [topic]);
 
-            useEffect(() => {
-                if (!topic) return;
-                synth.current.cancel();
-                // Plain text for audio
+            // Función crítica para móviles: Debe crear el utterance DENTRO del handler del click
+            const togglePlay = () => {
+                if (isPlaying) {
+                    synth.cancel();
+                    setIsPlaying(false);
+                    return;
+                }
+
+                // Limpiar cualquier voz anterior
+                synth.cancel();
+
+                // Construir el texto completo
                 const fullText = topic.subtopics.map(s => `Punto ${s.id}. ${s.title}. ${s.content || ''}`).join('. ');
+                
+                // IMPORTANTE: En móviles el objeto DEBE crearse en el contexto del click
                 const u = new SpeechSynthesisUtterance(fullText);
                 u.lang = 'es-ES';
                 u.rate = speed;
-                u.onend = () => setIsPlaying(false);
-                utterance.current = u;
-                return () => synth.current.cancel();
-            }, [topic, speed]);
+                u.pitch = 1;
 
-            const togglePlay = () => {
-                if (isPlaying) { synth.current.pause(); setIsPlaying(false); }
-                else {
-                    if (synth.current.paused) synth.current.resume();
-                    else if (utterance.current) synth.current.speak(utterance.current);
-                    setIsPlaying(true);
-                }
+                u.onstart = () => setIsPlaying(true);
+                u.onend = () => setIsPlaying(false);
+                u.onerror = (e) => {
+                    console.error("Speech Error:", e);
+                    setIsPlaying(false);
+                };
+
+                // Pequeño truco para iOS: hablar algo vacío para "desbloquear"
+                synth.speak(new SpeechSynthesisUtterance(""));
+                
+                // Hablar el texto real
+                synth.speak(u);
+                utteranceRef.current = u;
             };
 
             if (!topic) return <div className="p-4">Tema no encontrado</div>;
@@ -799,7 +815,7 @@ ESQUEMA RÁPIDO:
                     <div className="sticky top-0 bg-white border-b z-20 px-4 py-3 flex items-center justify-between shadow-sm">
                         <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100"><Icons.ChevronLeft /></button>
                         <span className="font-bold text-sm truncate max-w-[200px]">Tema {topic.id}</span>
-                        <button onClick={togglePlay} className={`p-2 rounded-full ${isPlaying ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}>
+                        <button onClick={togglePlay} className={`p-3 rounded-full shadow-md transition-all ${isPlaying ? 'bg-red-500 text-white animate-pulse' : 'bg-blue-600 text-white'}`}>
                             {isPlaying ? <Icons.Pause /> : <Icons.Play />}
                         </button>
                     </div>
@@ -810,7 +826,7 @@ ESQUEMA RÁPIDO:
                             <h1 className="text-2xl font-bold mt-2 mb-4 leading-tight">{topic.fullTitle}</h1>
                             <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar">
                                 {[StudyStatus.PENDING, StudyStatus.REVIEWING, StudyStatus.COMPLETED].map((s) => (
-                                    <button key={s} onClick={() => updateStatus(topic.id, s)} className={`px-4 py-2 rounded-full text-xs font-bold border ${currentStatus === s ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500'}`}>
+                                    <button key={s} onClick={() => updateStatus(topic.id, s)} className={`px-4 py-2 rounded-full text-xs font-bold border whitespace-nowrap transition-colors ${currentStatus === s ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 border-gray-200'}`}>
                                         {s === StudyStatus.PENDING ? 'Pendiente' : s === StudyStatus.REVIEWING ? 'Repasando' : 'Estudiado'}
                                     </button>
                                 ))}
@@ -818,9 +834,11 @@ ESQUEMA RÁPIDO:
                         </div>
                         <div className="space-y-6">
                             {topic.subtopics.map((sub, idx) => (
-                                <div key={sub.id} className={`p-4 rounded-lg border ${activeSubtopic === idx ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50'}`} onClick={() => setActiveSubtopic(idx)}>
-                                    <h3 className="font-bold text-blue-900 mb-2">{sub.id} {sub.title}</h3>
-                                    {/* Added whitespace-pre-wrap to respect newlines from the data */}
+                                <div key={sub.id} className={`p-4 rounded-lg border transition-all ${activeSubtopic === idx ? 'bg-yellow-50 border-yellow-200 ring-2 ring-yellow-100' : 'bg-gray-50 border-gray-100'}`} onClick={() => setActiveSubtopic(idx)}>
+                                    <h3 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">{sub.id}</span>
+                                        {sub.title}
+                                    </h3>
                                     <div className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
                                         {sub.content || "Contenido pendiente de desarrollar."}
                                     </div>
@@ -829,11 +847,16 @@ ESQUEMA RÁPIDO:
                         </div>
                     </div>
                     
-                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 pb-8 flex items-center justify-between z-30">
-                        <span className="text-xs font-bold text-gray-400">VELOCIDAD</span>
-                        <div className="flex items-center gap-4 flex-1 mx-4">
-                            <input type="range" min="0.5" max="2" step="0.25" value={speed} onChange={(e) => setSpeed(parseFloat(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg" />
-                            <span className="text-xs font-bold">{speed}x</span>
+                    <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 pb-8 flex items-center justify-between z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+                        <div className="flex flex-col gap-1 flex-1 mr-6">
+                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Velocidad de Lectura</span>
+                           <div className="flex items-center gap-4">
+                               <input type="range" min="0.5" max="2" step="0.25" value={speed} onChange={(e) => setSpeed(parseFloat(e.target.value))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none accent-blue-600" />
+                               <span className="text-xs font-bold text-blue-700 min-w-[30px]">{speed}x</span>
+                           </div>
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-medium italic">
+                            Pulsa Play para escuchar
                         </div>
                     </div>
                 </div>
@@ -864,25 +887,25 @@ ESQUEMA RÁPIDO:
             return (
                 <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6 pb-24">
                    <div className="w-full max-w-md flex justify-between mb-6">
-                        <button onClick={() => navigate('/')} className="text-gray-500">Salir</button>
+                        <button onClick={() => navigate('/')} className="text-gray-500 font-medium">Salir</button>
                         <span className="text-gray-400 font-mono text-sm">{currentIndex + 1} / {cards.length}</span>
                    </div>
                    <div className="w-full max-w-md aspect-[3/4] perspective-1000 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
                      <div className={`relative w-full h-full duration-500 preserve-3d transition-all ${isFlipped ? 'rotate-y-180' : ''}`}>
-                        <div className="absolute w-full h-full bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center justify-center backface-hidden">
-                            <span className="text-blue-500 font-bold text-sm tracking-widest mb-4">PREGUNTA</span>
+                        <div className="absolute w-full h-full bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center justify-center backface-hidden border border-gray-100">
+                            <span className="text-blue-500 font-bold text-sm tracking-widest mb-4 uppercase">Pregunta</span>
                             <h2 className="text-2xl font-bold text-center text-gray-800">{card.front}</h2>
-                            <p className="mt-8 text-gray-400 text-sm animate-pulse">Toca para voltear</p>
+                            <p className="mt-8 text-gray-300 text-xs animate-pulse">Toca para voltear</p>
                         </div>
                         <div className="absolute w-full h-full bg-blue-600 rounded-3xl shadow-xl p-8 flex flex-col items-center justify-center backface-hidden rotate-y-180 text-white">
-                            <span className="text-blue-200 font-bold text-sm tracking-widest mb-4">RESPUESTA</span>
+                            <span className="text-blue-200 font-bold text-sm tracking-widest mb-4 uppercase">Respuesta</span>
                             <h2 className="text-2xl font-bold text-center">{card.back}</h2>
                         </div>
                      </div>
                    </div>
                    <div className="flex gap-4 mt-8 w-full max-w-md">
-                        <button onClick={(e) => { e.stopPropagation(); handleNext(false); }} className="flex-1 py-4 bg-red-100 text-red-600 rounded-xl font-bold">Difícil</button>
-                        <button onClick={(e) => { e.stopPropagation(); handleNext(true); }} className="flex-1 py-4 bg-green-100 text-green-600 rounded-xl font-bold">Fácil</button>
+                        <button onClick={(e) => { e.stopPropagation(); handleNext(false); }} className="flex-1 py-4 bg-red-100 text-red-600 rounded-xl font-bold active:bg-red-200 transition-colors shadow-sm">Difícil</button>
+                        <button onClick={(e) => { e.stopPropagation(); handleNext(true); }} className="flex-1 py-4 bg-green-100 text-green-600 rounded-xl font-bold active:bg-green-200 transition-colors shadow-sm">Fácil</button>
                    </div>
                 </div>
             );
@@ -890,6 +913,10 @@ ESQUEMA RÁPIDO:
 
         const Layout = () => {
             const navigate = useNavigate();
+            const location = ReactRouterDOM.useLocation();
+            
+            const isActive = (path) => location.pathname === path ? 'text-blue-600' : 'text-gray-400';
+
             return (
                 <>
                     <div className="min-h-screen font-sans text-gray-900 bg-gray-50">
@@ -899,10 +926,10 @@ ESQUEMA RÁPIDO:
                             <Route path="/flashcards" element={<FlashcardsWithData />} />
                         </Routes>
                     </div>
-                    <nav className="fixed bottom-0 w-full bg-white border-t border-gray-200 pb-safe pt-2 px-6 flex justify-between items-center z-40 h-16 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-                        <button onClick={() => navigate('/')} className="flex flex-col items-center text-gray-500 hover:text-blue-600 gap-1"><Icons.Book /><span className="text-[10px] font-medium">Temario</span></button>
-                        <button onClick={() => navigate('/flashcards')} className="flex flex-col items-center text-gray-500 hover:text-blue-600 gap-1"><Icons.Brain /><span className="text-[10px] font-medium">Repaso</span></button>
-                        <button className="flex flex-col items-center text-gray-300 gap-1"><div className="w-6 h-6 rounded-full bg-gray-200"></div><span className="text-[10px] font-medium">Perfil</span></button>
+                    <nav className="fixed bottom-0 w-full bg-white border-t border-gray-200 pb-safe pt-2 px-6 flex justify-between items-center z-40 h-16 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+                        <button onClick={() => navigate('/')} className={`flex flex-col items-center gap-1 transition-colors ${isActive('/')}`}><Icons.Book /><span className="text-[10px] font-bold">Temario</span></button>
+                        <button onClick={() => navigate('/flashcards')} className={`flex flex-col items-center gap-1 transition-colors ${isActive('/flashcards')}`}><Icons.Brain /><span className="text-[10px] font-bold">Repaso</span></button>
+                        <button className="flex flex-col items-center text-gray-300 gap-1"><div className="w-6 h-6 rounded-full bg-gray-100 border border-gray-200"></div><span className="text-[10px] font-bold">Perfil</span></button>
                     </nav>
                 </>
             );

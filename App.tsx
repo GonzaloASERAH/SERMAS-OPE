@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { HashRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { Topic, TopicCategory, StudyStatus, TopicProgress, UserProgress } from './types';
@@ -74,8 +75,9 @@ const Dashboard: React.FC<{ progress: UserProgress }> = ({ progress }) => {
 
   const stats = useMemo(() => {
     const total = TOPICS.length;
-    const completed = Object.values(progress).filter(p => p.status === StudyStatus.COMPLETED).length;
-    const reviewing = Object.values(progress).filter(p => p.status === StudyStatus.REVIEWING).length;
+    // Explicitly cast Object.values to TopicProgress[] to ensure 'status' property is recognized by the compiler
+    const completed = (Object.values(progress) as TopicProgress[]).filter(p => p.status === StudyStatus.COMPLETED).length;
+    const reviewing = (Object.values(progress) as TopicProgress[]).filter(p => p.status === StudyStatus.REVIEWING).length;
     const percent = Math.round((completed / total) * 100);
     return { completed, reviewing, percent };
   }, [progress]);
